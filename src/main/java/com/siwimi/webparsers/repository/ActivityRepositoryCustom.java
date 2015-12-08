@@ -1,6 +1,6 @@
-package com.siwimi.webapi.repository;
+package com.siwimi.webparsers.repository;
 
-import com.siwimi.webapi.domain.Activity;
+import com.siwimi.webparsers.domain.Activity;
 
 public interface ActivityRepositoryCustom {
 	Activity queryExistedActivity(String creatorId);

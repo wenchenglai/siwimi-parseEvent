@@ -13,8 +13,8 @@ apply plugin: 'idea'
 apply plugin: 'spring-boot'
 
 jar {
-    baseName = 'gs-accessing-data-mongodb'
-    version =  '0.1.0'
+    baseName = 'siwimi-webparsers'
+    version =  '0.0.1'
 }
 
 repositories {
@@ -26,12 +26,11 @@ targetCompatibility = 1.8
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-data-mongodb")
-    testCompile("junit:junit")
-
     compile('com.google.guava:guava:18.0')
-    testCompile("com.jayway.jsonpath:json-path:2.0.0")
     compile("javax.mail:mail:1.4.7")
     compile('org.jsoup:jsoup:1.8.3')
+    testCompile("com.jayway.jsonpath:json-path:2.0.0")
+    testCompile("junit:junit")  
 }
 
 task wrapper(type: Wrapper) {

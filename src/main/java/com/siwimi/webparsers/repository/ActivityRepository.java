@@ -1,8 +1,8 @@
- package com.siwimi.webapi.repository;
+ package com.siwimi.webparsers.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import com.siwimi.webapi.domain.Activity;
+import com.siwimi.webparsers.domain.Activity;
 
 public interface ActivityRepository extends MongoRepository<Activity, String>, ActivityRepositoryCustom{
 	//Activity findByIdAndIsDeletedRecordIsFalse(String id);

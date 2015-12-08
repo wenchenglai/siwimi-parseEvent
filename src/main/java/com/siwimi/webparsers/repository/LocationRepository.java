@@ -1,8 +1,8 @@
-package com.siwimi.webapi.repository;
+package com.siwimi.webparsers.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import com.siwimi.webapi.domain.Location;
+import com.siwimi.webparsers.domain.Location;
 
 public interface LocationRepository extends MongoRepository<Location, String>, LocationRepositoryCustom{
 

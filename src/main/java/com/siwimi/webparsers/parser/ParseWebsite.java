@@ -1,10 +1,10 @@
-package com.siwimi.webapi.parser;
+package com.siwimi.webparsers.parser;
 
 import java.util.List;
 
-import com.siwimi.webapi.domain.Activity;
-import com.siwimi.webapi.repository.ActivityRepository;
-import com.siwimi.webapi.repository.LocationRepository;
+import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.repository.ActivityRepository;
+import com.siwimi.webparsers.repository.LocationRepository;
 
 public interface ParseWebsite {
 	List<Activity> retrieve(String url);

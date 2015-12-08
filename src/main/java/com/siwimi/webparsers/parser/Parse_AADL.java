@@ -1,4 +1,4 @@
-package com.siwimi.webapi.parser;
+package com.siwimi.webparsers.parser;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -16,10 +16,10 @@ import org.jsoup.select.Elements;
 
 import sun.misc.BASE64Encoder;
 
-import com.siwimi.webapi.domain.Activity;
-import com.siwimi.webapi.domain.Location;
-import com.siwimi.webapi.repository.ActivityRepository;
-import com.siwimi.webapi.repository.LocationRepository;
+import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.domain.Location;
+import com.siwimi.webparsers.repository.ActivityRepository;
+import com.siwimi.webparsers.repository.LocationRepository;
 
 public class Parse_AADL implements ParseWebsite{
 

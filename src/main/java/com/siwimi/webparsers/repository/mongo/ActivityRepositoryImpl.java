@@ -1,4 +1,4 @@
-package com.siwimi.webapi.repository.mongo;
+package com.siwimi.webparsers.repository.mongo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,8 +10,8 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
-import com.siwimi.webapi.domain.Activity;
-import com.siwimi.webapi.repository.ActivityRepositoryCustom;
+import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.repository.ActivityRepositoryCustom;
 
 @Repository
 public class ActivityRepositoryImpl implements ActivityRepositoryCustom {

@@ -1,4 +1,4 @@
-package com.siwimi.webapi.domain;
+package com.siwimi.webparsers.domain;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;

@@ -1,4 +1,4 @@
-package com.siwimi.webapi;
+package com.siwimi.webparsers;
 
 
 import org.springframework.context.annotation.Configuration;
