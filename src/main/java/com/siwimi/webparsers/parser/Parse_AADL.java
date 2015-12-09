@@ -27,8 +27,8 @@ public class Parse_AADL implements ParseWebsite{
 	public List<Activity> retrieve(String url) {
 		List<Activity> activities = new ArrayList<Activity>();
 
-		// Retrieve five pages from AADL
-		for (int i=0; i<5; i++) {
+		// Retrieve three pages from AADL
+		for (int i=0; i<3; i++) {
 			String activitiesUrl = i==0 ? url: "http://www.aadl.org/events?page="+i;
 			Document doc = null; 
 			try {
