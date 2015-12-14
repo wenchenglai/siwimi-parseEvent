@@ -21,13 +21,21 @@ public class ActivityRepositoryImpl implements ActivityRepositoryCustom {
 
 	@SuppressWarnings("static-access")
 	@Override
-	public Activity queryExistedActivity(String creatorId) {			
+	public Activity queryExistedActivity(String creatorId, String title, String description) {			
 		List<Criteria> criterias = new ArrayList<Criteria>();
 		
 		criterias.add(new Criteria().where("isDeletedRecord").is(false));
 
 		if (creatorId != null) {
 			criterias.add(new Criteria().where("creator").is(creatorId));
+		}
+		
+		if (title != null) {
+			criterias.add(new Criteria().where("title").is(title));
+		}
+		
+		if (description != null) {
+			criterias.add(new Criteria().where("description").is(description));
 		}
 		
 		Criteria c = new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()]));

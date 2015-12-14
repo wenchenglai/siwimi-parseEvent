@@ -176,7 +176,7 @@ public class Parse_AADL implements ParseWebsite{
 		if (activities != null) {
 			for (Activity activity : activities) {
 				activity = updateLocationAndTime(activity,locationRep);
-				if (activityRep.queryExistedActivity(activity.getCreator()) == null)
+				if (activityRep.queryExistedActivity(activity.getCreator(),activity.getTitle(),activity.getDescription()) == null)
 					activityRep.saveActivity(activity);
 			}
 		}
