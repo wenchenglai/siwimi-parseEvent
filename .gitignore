@@ -43,3 +43,6 @@ gradle/
 
 /target/
 /bin/
+
+# IntelliJ
+.idea
