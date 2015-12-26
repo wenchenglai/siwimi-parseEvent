@@ -37,8 +37,7 @@ public class Parse_template implements ParseWebsite{
 	
 	public Activity updateLocationAndTime(Activity activity, LocationRepository locationRep) {
 		// lookup location from the collection Location;
-		//Location thisLocation = locationRep.queryLocation(activity.getZipCode(), activity.getCity(), activity.getState());
-		Location thisLocation = locationRep.queryLocation(activity.getZipCode(), null, null);
+		Location thisLocation = locationRep.queryLocation(activity.getZipCode(), activity.getCity(), activity.getState());
 		// set longitude and latitude 
 		if (thisLocation!=null) {
 			double[] location = {thisLocation.getLongitude(), thisLocation.getLatitude()};

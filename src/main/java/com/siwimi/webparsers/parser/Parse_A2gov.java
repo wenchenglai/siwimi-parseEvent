@@ -2,6 +2,7 @@ package com.siwimi.webparsers.parser;
 
 
 import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.domain.Location;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
 
@@ -73,7 +74,8 @@ public class Parse_A2gov implements ParseWebsite {
                 activity.setDescription(eventDescription);
                 // fixed url
                 activity.setUrl("http://www.a2gov.org/departments/Parks-Recreation/Pages/events.aspx");
-                activity.setState("MI");
+                activity.setCity("Ann Arbor");
+                activity.setState("Michigan");
 
                 // get event from date and end date
                 // get event date
@@ -104,13 +106,7 @@ public class Parse_A2gov implements ParseWebsite {
                         Date eventToDate = formatter.parse(eventDate.trim() + " " + toTime);
                         activity.setToDate(eventToDate);
                     }
-
-
                 }
-
-
-
-
                 activities.add(activity);
             }
         } catch (Exception e) {
@@ -120,17 +116,16 @@ public class Parse_A2gov implements ParseWebsite {
         return activities;
     }
 
-    @Override
-    public void saveActivity(List<Activity> activities, ActivityRepository activityRep, LocationRepository locationRep) {
-        if (activities != null) {
-            for (Activity activity : activities) {
-                activity = updateTime(activity);
-                // only insert new event
-                if (activityRep.queryExistedActivity(activity.getCreator()) == null)
-                    activityRep.saveActivity(activity);
-            }
-        }
-    }
+	@Override
+	public void saveActivity(List<Activity> activities, ActivityRepository activityRep, LocationRepository locationRep) {
+		if (activities != null) {
+			for (Activity activity : activities) {
+				activity = updateLocationAndTime(activity,locationRep);
+				if (activityRep.queryExistedActivity(activity.getCreator(),activity.getTitle(),activity.getDescription()) == null)
+					activityRep.saveActivity(activity);
+			}
+		}
+	}
 
 
     /**
@@ -150,25 +145,40 @@ public class Parse_A2gov implements ParseWebsite {
         return response;
     }
 
+	public Activity updateLocationAndTime(Activity activity, LocationRepository locationRep) {
+		// lookup location from the collection Location;
+		Location thisLocation = locationRep.queryLocation(activity.getZipCode(), activity.getCity(), activity.getState());
+		// set longitude and latitude 
+		if (thisLocation!=null) {
+			double[] location = {thisLocation.getLongitude(), thisLocation.getLatitude()};
+			activity.setZipCode(thisLocation.getZipCode());
+			activity.setLocation(location);
+			activity.setCity(thisLocation.getTownship());
+			activity.setState(thisLocation.getStateCode());
+		}
 
-    /**
-     * update time
-     * @param activity
-     * @return
-     */
-    public Activity updateTime(Activity activity) {
-        // set time zone of Michigan
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("EEEE MMMM dd, yyyy hh:mm aaa");
-        String fromDateString = dateFormatter.format(activity.getFromDate());
-        String toDateString = dateFormatter.format(activity.getToDate());
-        dateFormatter.setTimeZone(TimeZone.getTimeZone("US/Michigan"));
-
-        try {
-            activity.setFromDate(dateFormatter.parse(fromDateString));
-            activity.setToDate(dateFormatter.parse(toDateString));
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return activity;
-    }
+		SimpleDateFormat formatter = new SimpleDateFormat("EEEE MMMM dd, yyyy hh:mm aaa");
+	    String fromDateString = formatter.format(activity.getFromDate());	 
+	    String toDateString = formatter.format(activity.getToDate());
+	    if (thisLocation.getTimezone() != null) {
+	    	if (thisLocation.getTimezone().contains("-5"))
+	    		formatter.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+	    	else if (thisLocation.getTimezone().contains("-6"))
+	    		formatter.setTimeZone(TimeZone.getTimeZone("America/Winnipeg"));
+	    	else if (thisLocation.getTimezone().contains("-7"))
+	    		formatter.setTimeZone(TimeZone.getTimeZone("America/Phoenix"));
+	    	else if (thisLocation.getTimezone().contains("-8"))
+	    		formatter.setTimeZone(TimeZone.getTimeZone("America/Vancouver"));		    	
+	    } else {
+	    	formatter.setTimeZone(TimeZone.getTimeZone("America/New_York"));
+	    }	    
+	   try {
+		   activity.setFromDate(formatter.parse(fromDateString));
+		   activity.setToDate(formatter.parse(toDateString));
+	   } catch (ParseException e) {
+		   e.printStackTrace();
+	   }								
+		return activity;
+	}
+	
 }
