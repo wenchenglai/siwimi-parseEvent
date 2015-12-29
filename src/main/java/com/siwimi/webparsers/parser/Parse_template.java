@@ -14,7 +14,7 @@ import com.siwimi.webparsers.repository.LocationRepository;
 public class Parse_template implements ParseWebsite{
 
 	@Override
-	public List<Activity> retrieve(String url) {
+	public List<Activity> getEvents(String eventsSourceUrl, String creator, LocationRepository locationRep) {
 		List<Activity> activities = new ArrayList<Activity>();
 		
 		/* 
@@ -24,7 +24,6 @@ public class Parse_template implements ParseWebsite{
 		return activities;
 	}
 	
-	@Override
 	public void saveActivity(List<Activity> activities, ActivityRepository activityRep, LocationRepository locationRep) {
 		if (activities != null) {
 			for (Activity activity : activities) {
