@@ -60,7 +60,7 @@ public class Parse_A2gov implements ParseWebsite {
 
                 String eventId = eachPanel.select(".panel-collapse").first().id();
                 // store activity data
-                activity.setCreator("Siwimi robot : City of Ann Arbor " + eventId);
+                activity.setCreator("Siwimi robot : City of Ann Arbor");
                 activity.setCreatedDate(new Date());
 
                 activity.setTitle(eventTitle);

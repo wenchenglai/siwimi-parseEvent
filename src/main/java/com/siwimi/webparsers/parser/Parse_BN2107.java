@@ -60,6 +60,11 @@ public class Parse_BN2107 implements ParseWebsite {
 					String event_url = String.format("%1s%2s", defaultEventHostUrl, link.attr("href"));
 					String title = link.child(0).text();
 					
+					String category = "misc";
+					String possibleType = main.child(2).text();
+					if (possibleType.contains("Storytime"))
+						category = "storytelling";
+					
 					// This page's dateTime location could change, depends on if this event has ageGroup sepcified
 					Element dateTimeElement = main.child(6);
 					
@@ -90,6 +95,7 @@ public class Parse_BN2107 implements ParseWebsite {
 					newEvent.setCreator(creator);
 					newEvent.setUrl(event_url);
 					newEvent.setTitle(title);
+					newEvent.setType(category);
 					newEvent.setCreatedDate(new Date());
 					newEvent.setFromDate(fromDate);
 					newEvent.setFromTime(fromTime);

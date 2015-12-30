@@ -12,6 +12,7 @@ public class ActivitySite {
 	private String siteName;
 	private String url;
 	private String className;
+	private Boolean isActive;
 	
 	public String getId() {
 		return id;
@@ -36,5 +37,11 @@ public class ActivitySite {
 	}
 	public void setUrl(String url) {
 		this.url = url;
+	}
+	public Boolean getIsActive() {
+		return isActive;
+	}
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
 	}	
 }

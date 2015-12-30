@@ -51,7 +51,7 @@ public class Parse_AADL implements ParseWebsite{
 					if ((title!=null) && !title.isEmpty() && (nodeId!=null)) {
 						Activity activity = new Activity();
 						// Populate activity : creator Id. We need this ensure no duplicated activities posted by robot
-						activity.setCreator("Siwimi robot : Ann Arbor Distric Library "+nodeId);
+						activity.setCreator("Siwimi robot : Ann Arbor Distric Library");
 						// Populate activity : url
 						if (eventUrl!=null)
 							activity.setUrl("http://www.aadl.org"+eventUrl);

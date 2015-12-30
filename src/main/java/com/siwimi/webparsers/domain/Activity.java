@@ -35,6 +35,20 @@ public class Activity {
 	private String url;
 	private String imageData;
 	private String imageUrl;
+	
+	/*
+	 * birthday
+       concert
+       farm
+       storytelling
+       movie
+       museum
+       playdate
+       festival
+       show 
+       sport
+       misc"
+	 * */
 	private String type;
 	private int like;
 	private int viewCount;

@@ -117,7 +117,6 @@ public interface ParseWebsite {
 		if (resultImageResponse == null)
 			return null;
 		
-
 		Encoder encoder = Base64.getEncoder();
 		String imageData = encoder.encodeToString(resultImageResponse.bodyAsBytes());
 		
@@ -125,7 +124,7 @@ public interface ParseWebsite {
 		if (imageUrl.contains(".gif")) {
 			imageType = "gif";
 		} else if (imageUrl.contains(".png")) {
-			imageData = "png";	
+			imageType = "png";	
 		}
 		
 		return String.format("data:image/%1s;base64,%2s", imageType, imageData);
