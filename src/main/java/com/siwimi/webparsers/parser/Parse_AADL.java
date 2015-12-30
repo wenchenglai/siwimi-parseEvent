@@ -9,12 +9,9 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.jsoup.Jsoup;
-import org.jsoup.Connection.Response;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-
-import sun.misc.BASE64Encoder;
 
 import com.siwimi.webparsers.domain.Activity;
 import com.siwimi.webparsers.domain.Location;
@@ -24,15 +21,15 @@ import com.siwimi.webparsers.repository.LocationRepository;
 public class Parse_AADL implements ParseWebsite{
 
 	@Override
-	public List<Activity> retrieve(String url) {
+	public List<Activity> getEvents(String eventsSourceUrl, String creator, LocationRepository locationRep) {
 		List<Activity> activities = new ArrayList<Activity>();
 
 		// Retrieve three pages from AADL
 		for (int i=0; i<3; i++) {
-			String activitiesUrl = i==0 ? url: "http://www.aadl.org/events?page="+i;
+			String activitiesUrl = i==0 ? eventsSourceUrl: "http://www.aadl.org/events?page="+i;
 			Document doc = null; 
 			try {
-				// Build up connetion, and parse activities
+				// Build up connection, and parse activities
 				doc = Jsoup.connect(activitiesUrl).get();
 				String parseActivity = "node node-type-pub-event node-teaser build-mode-teaser with-picture";
 				Elements divs = doc.getElementsByAttributeValue("class", parseActivity);
@@ -54,7 +51,7 @@ public class Parse_AADL implements ParseWebsite{
 					if ((title!=null) && !title.isEmpty() && (nodeId!=null)) {
 						Activity activity = new Activity();
 						// Populate activity : creator Id. We need this ensure no duplicated activities posted by robot
-						activity.setCreator("Siwimi robot : Ann Arbor Distric Library "+nodeId);
+						activity.setCreator("Siwimi robot : Ann Arbor Distric Library");
 						// Populate activity : url
 						if (eventUrl!=null)
 							activity.setUrl("http://www.aadl.org"+eventUrl);
@@ -66,17 +63,7 @@ public class Parse_AADL implements ParseWebsite{
 						String imageUrl = e.select("img").attr("src");
 						if (imageUrl!=null) {
 							activity.setImageUrl(imageUrl);		
-							// Populate activity : imageData
-							Response resultImageResponse = Jsoup.connect(imageUrl).ignoreContentType(true).execute();
-							BASE64Encoder encoder = new BASE64Encoder();
-							String imageData = encoder.encode(resultImageResponse.bodyAsBytes());
-							//System.out.println(imageData);
-							if (imageUrl.contains(".jpg")) {
-								imageData = "data:image/jpeg;base64," + imageData;
-							} else if (imageUrl.contains(".png")) {
-								imageData = "data:image/png;base64," + imageData;	
-							}
-							activity.setImageData(imageData);
+							activity.setImageData(getImageBase64(imageUrl));
 						}					
 						// Populate activity : description
 						activity.setDescription(content2);
@@ -171,7 +158,6 @@ public class Parse_AADL implements ParseWebsite{
 		return activities;
 	}
 	
-	@Override
 	public void saveActivity(List<Activity> activities, ActivityRepository activityRep, LocationRepository locationRep) {
 		if (activities != null) {
 			for (Activity activity : activities) {

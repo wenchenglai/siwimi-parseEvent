@@ -1,6 +1,5 @@
 package com.siwimi.webparsers.parser;
 
-
 import com.siwimi.webparsers.domain.Activity;
 import com.siwimi.webparsers.domain.Location;
 import com.siwimi.webparsers.repository.ActivityRepository;
@@ -11,15 +10,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-
 import java.io.BufferedReader;
-
-
 import java.io.InputStreamReader;
-
 import java.net.URL;
-
-
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,7 +26,7 @@ import java.util.regex.Pattern;
 public class Parse_A2gov implements ParseWebsite {
 
     @Override
-    public List<Activity> retrieve(String url) {
+    public List<Activity> getEvents(String eventsSourceUrl, String creator, LocationRepository locationRep) {
         List<Activity> activities = new ArrayList<Activity>();
 
         try {
@@ -67,7 +60,7 @@ public class Parse_A2gov implements ParseWebsite {
 
                 String eventId = eachPanel.select(".panel-collapse").first().id();
                 // store activity data
-                activity.setCreator("Siwimi robot : City of Ann Arbor " + eventId);
+                activity.setCreator("Siwimi robot : City of Ann Arbor");
                 activity.setCreatedDate(new Date());
 
                 activity.setTitle(eventTitle);
@@ -116,7 +109,6 @@ public class Parse_A2gov implements ParseWebsite {
         return activities;
     }
 
-	@Override
 	public void saveActivity(List<Activity> activities, ActivityRepository activityRep, LocationRepository locationRep) {
 		if (activities != null) {
 			for (Activity activity : activities) {
