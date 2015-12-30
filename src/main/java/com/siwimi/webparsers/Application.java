@@ -35,12 +35,17 @@ public class Application implements CommandLineRunner {
 		List<ActivitySite> sites = activitySiteRepository.findAll();		
 		if (sites != null) {
 			for (ActivitySite site : sites) {
+				if (site.getIsActive() == null || !site.getIsActive())
+					break;
+				
 				String classPath = "com.siwimi.webparsers.parser." + site.getClassName();
-				ParseWebsite parse = (ParseWebsite) ParseWebsite.class.getClassLoader().loadClass(classPath).newInstance();
-				List<Activity> activities = parse.retrieve(site.getUrl());
-				parse.saveActivity(activities, activityRep, locationRep);
+				// NOTE: rename parse to parser
+				ParseWebsite parser = (ParseWebsite) ParseWebsite.class.getClassLoader().loadClass(classPath).newInstance();
+				List<Activity> events = parser.getEvents(site.getUrl(), site.getSiteName(), locationRep);
+				parser.saveEvents(events, activityRep);
 			}
-		}		
+		}
+		System.out.println("Finished all parsers operations.");
 	}
 
 }
