@@ -49,84 +49,88 @@ public class Parse_BN2107 implements ParseWebsite {
 		
 		// Step 4: Loop through the elements list - add event
 		for (Element e : rows) {
-			if (e.children().size() >= 2) {
-				Element main = e.child(1);		
-				
-				Elements testElements = main.select("h3.lgTitles");
-				
-				if (testElements.size() == 1) {
-					int errorCode = 0;
-					Element link = main.child(0);
-					String event_url = String.format("%1s%2s", defaultEventHostUrl, link.attr("href"));
-					String title = link.child(0).text();
-					
-					String category = "misc";
-					String possibleType = main.child(2).text();
-					if (possibleType.contains("Storytime"))
-						category = "storytelling";
-					
-					// This page's dateTime location could change, depends on if this event has ageGroup sepcified
-					Element dateTimeElement = main.child(6);
-					
-					String dateTime = null;
-					if (dateTimeElement.tagName() == "span")
-						dateTime = main.child(6).text();
-					else
-						dateTime = main.child(5).text();
-					
-					String description = main.text();
-					
-					String fromTime = null;
-					try {
-						fromTime = getFromTime(dateTime);
-					} catch (Exception e2) {
-						errorCode += ErrorCode.NoFromTime.getValue();
-					}
-					
-					Date fromDate = null;
-					try {
-						fromDate = getFromDate(dateTime, fromTime);
-					} catch (Exception e3) {
-						errorCode += ErrorCode.NoFromDate.getValue();
-					}
-
-					Activity newEvent = new Activity();
-					
-					newEvent.setCreator(creator);
-					newEvent.setUrl(event_url);
-					newEvent.setTitle(title);
-					newEvent.setType(category);
-					newEvent.setCreatedDate(new Date());
-					newEvent.setFromDate(fromDate);
-					newEvent.setFromTime(fromTime);
-					newEvent.setDescription(description);
-					newEvent.setAddress(defaultAddress);
-					newEvent.setZipCode(defaultZipCode);
-					newEvent.setIsDeletedRecord(false);
-					newEvent.setViewCount(0);
-					newEvent.setErrorCode(errorCode);
-					
-					Element imageRow = e.child(2);
-					String imageUrl = defaultEventImgUrl;
-					if (imageRow.children().size() == 2) {
-						imageUrl = String.format("http://%1s", imageRow.child(0).child(0).attr("src").substring(2));
-					}
-					
-					newEvent.setImageUrl(imageUrl);
-					String base64Image = getImageBase64(imageUrl);
-					
-					if (base64Image != null)
-						newEvent.setImageData(getImageBase64(imageUrl));
-					else 
-						errorCode += ErrorCode.NoImageBase64.getValue();
-					
-					Location location = locationRep.queryLocation(newEvent.getZipCode(), newEvent.getCity(), newEvent.getState());
-					updateEventLocation(newEvent, location);
-					updateEventTimeZone(newEvent, location);
-					
-					eventsOutput.add(newEvent);
-				}
+			if (e.children().size() < 2) {
+				continue;
 			}
+			
+			Element main = e.child(1);		
+			Elements testElements = main.select("h3.lgTitles");
+				
+			if (testElements.size() != 1) {
+				continue;
+			}
+			
+			int errorCode = 0;
+			Element link = main.child(0);
+			String event_url = String.format("%1s%2s", defaultEventHostUrl, link.attr("href"));
+			String title = link.child(0).text();
+			
+			String category = "misc";
+			String possibleType = main.child(2).text();
+			if (possibleType.contains("Storytime"))
+				category = "storytelling";
+			
+			// This page's dateTime location could change, depends on if this event has ageGroup sepcified
+			Element dateTimeElement = main.child(6);
+			
+			String dateTime = null;
+			if (dateTimeElement.tagName() == "span")
+				dateTime = main.child(6).text();
+			else
+				dateTime = main.child(5).text();
+			
+			String description = main.text();
+			
+			String fromTime = null;
+			try {
+				fromTime = getFromTime(dateTime);
+			} catch (Exception e2) {
+				errorCode += ErrorCode.NoFromTime.getValue();
+			}
+			
+			Date fromDate = null;
+			try {
+				fromDate = getFromDate(dateTime, fromTime);
+			} catch (Exception e3) {
+				errorCode += ErrorCode.NoFromDate.getValue();
+			}
+
+			Activity newEvent = new Activity();
+			
+			newEvent.setCreator(creator);
+			newEvent.setUrl(event_url);
+			newEvent.setTitle(title);
+			newEvent.setType(category);
+			newEvent.setCreatedDate(new Date());
+			newEvent.setFromDate(fromDate);
+			newEvent.setFromTime(fromTime);
+			newEvent.setDescription(description);
+			newEvent.setAddress(defaultAddress);
+			newEvent.setZipCode(defaultZipCode);
+			newEvent.setIsDeletedRecord(false);
+			newEvent.setViewCount(0);
+			newEvent.setErrorCode(errorCode);
+			
+			Element imageRow = e.child(2);
+			String imageUrl = defaultEventImgUrl;
+			if (imageRow.children().size() == 2) {
+				imageUrl = imageRow.child(0).child(0).attr("src").trim();
+				
+				if (imageUrl.substring(0, 4) != "http")
+					imageUrl = String.format("http:%1s", imageUrl);
+			}
+			
+			newEvent.setImageUrl(imageUrl);
+			String base64Image = getImageBase64(imageUrl);
+			
+			if (base64Image != null)
+				newEvent.setImageData(base64Image);
+			else 
+				errorCode += ErrorCode.NoImageBase64.getValue();
+			
+			PostProcessing(newEvent, locationRep);
+			
+			eventsOutput.add(newEvent);
 		}
 		
 		return eventsOutput;
@@ -149,5 +153,11 @@ public class Parse_BN2107 implements ParseWebsite {
 	private String getFromTime(String dateTimeText) {
 		String[] splitted = dateTimeText.split("\\s+");
 		return String.format("%1s %2s", splitted[4], splitted[5]);
+	}
+	
+	private void PostProcessing(Activity newEvent, LocationRepository locationRep) {
+		Location location = locationRep.queryLocation(newEvent.getZipCode(), newEvent.getCity(), newEvent.getState());
+		updateEventLocation(newEvent, location);
+		updateEventTimeZone(newEvent, location);	
 	}
 }
