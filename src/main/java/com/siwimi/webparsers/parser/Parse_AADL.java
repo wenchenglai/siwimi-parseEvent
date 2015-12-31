@@ -57,6 +57,19 @@ public class Parse_AADL implements ParseWebsite{
 							activity.setUrl("http://www.aadl.org"+eventUrl);
 						// Populate activity : title
 						activity.setTitle(title);
+						// Populate activity : type
+						String type = "misc";
+						if (title != null) {
+							if (title.toLowerCase().contains("story"))
+								type = "storytelling";
+							else if (title.toLowerCase().contains("playgroup"))
+								type= "playdate";
+							else if (title.toLowerCase().contains("concert"))
+								type= "concert";
+							else if (title.toLowerCase().contains("film"))
+								type= "movie";								
+						}
+						activity.setType(type);
 						// Populate created date
 						activity.setCreatedDate(new Date());
 						// Populate activity : imageUrl and imageData
