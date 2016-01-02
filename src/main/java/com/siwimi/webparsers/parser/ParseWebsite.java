@@ -1,6 +1,5 @@
 package com.siwimi.webparsers.parser;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
@@ -37,21 +36,27 @@ public interface ParseWebsite {
 	    }
 	};
 	
+	// NOTE: we put shared variables here by all parsers
 	String defaultFromTime = "12:00 am";
 	
-	// NOTE: added locationRep, remove it from saveActivity
+	// NOTE: added locationRep, remove it from saveActivity, because saveActivity should be responsible for one thing only
 	List<Activity> getEvents(String url, String creator, LocationRepository locationRep);
 	
-	default void saveEvents(List<Activity> activities, ActivityRepository activityRep) {		
+	default int saveEvents(List<Activity> activities, ActivityRepository activityRep) {		
 		// NOTE: avoid nested code, also good for input validation.
 		if (activities == null)
-			return;
+			return 0;
 		
+		int totalEventSaved = 0;
 		for (Activity activity : activities) {
 			// NOTE: will title and from date, from time be enough?
-			if (activityRep.queryExistedActivity(activity.getCreator(),activity.getTitle(),activity.getDescription()) == null)
+			// TODO: we need to move this logic back to parsers - parser should know better how to handle duplicate events.
+			if (activityRep.queryExistedActivity(activity.getCreator(),activity.getTitle(),activity.getDescription()) == null) {
 				activityRep.saveActivity(activity);
+				totalEventSaved += 1;
+			}
 		}
+		return totalEventSaved;
 	};
 	
 	// NOTE: http://www.oracle.com/technetwork/java/javase/documentation/index-137868.html#format
@@ -106,10 +111,11 @@ public interface ParseWebsite {
 	}
 	
 	default String getImageBase64(String imageUrl) {		
-		Response resultImageResponse;
+		Response resultImageResponse = null;
 		try {
 			resultImageResponse = Jsoup.connect(imageUrl).ignoreContentType(true).execute();
-		} catch (IOException e) {
+		} catch (Exception e) {
+			System.out.println(String.format("Siwimi Exception: Cannot download image data with url = %1s", imageUrl));
 			e.printStackTrace();
 			return null;
 		}
