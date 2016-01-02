@@ -21,7 +21,7 @@ import com.siwimi.webparsers.repository.LocationRepository;
 public class Parse_AADL implements ParseWebsite{
 
 	@Override
-	public List<Activity> getEvents(String eventsSourceUrl, String creator, LocationRepository locationRep) {
+	public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep) {
 		List<Activity> activities = new ArrayList<Activity>();
 
 		// Retrieve three pages from AADL
@@ -51,7 +51,7 @@ public class Parse_AADL implements ParseWebsite{
 					if ((title!=null) && !title.isEmpty() && (nodeId!=null)) {
 						Activity activity = new Activity();
 						// Populate activity : creator Id. We need this ensure no duplicated activities posted by robot
-						activity.setCreator("Siwimi robot : Ann Arbor Distric Library");
+						activity.setParser(parser);
 						// Populate activity : url
 						if (eventUrl!=null)
 							activity.setUrl("http://www.aadl.org"+eventUrl);
