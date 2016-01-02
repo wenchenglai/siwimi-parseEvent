@@ -19,7 +19,7 @@ import com.siwimi.webparsers.repository.LocationRepository;
 public class Parse_BN2107 implements ParseWebsite {
 	
 	@Override
-	public List<Activity> getEvents(String eventsSourceUrl, String creator, LocationRepository locationRep) {
+	public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep) {
 
 		// Step 1: Initialize States
 		List<Activity> eventsOutput = new ArrayList<Activity>();
@@ -70,7 +70,7 @@ public class Parse_BN2107 implements ParseWebsite {
 			if (possibleType.contains("Storytime"))
 				category = "storytelling";
 			
-			// This page's dateTime location could change, depends on if this event has ageGroup sepcified
+			// This page's dateTime location could change, depends on if this event has ageGroup specified
 			Element dateTimeElement = main.child(6);
 			
 			String dateTime = null;
@@ -97,7 +97,7 @@ public class Parse_BN2107 implements ParseWebsite {
 
 			Activity newEvent = new Activity();
 			
-			newEvent.setCreator(creator);
+			newEvent.setParser(parser);
 			newEvent.setUrl(event_url);
 			newEvent.setTitle(title);
 			newEvent.setType(category);
