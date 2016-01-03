@@ -61,6 +61,7 @@ public class Activity {
 	// 16: missing base64Image
 	private int errorCode;
 	private String parser;
+	private String customData;
 	
 	// User comments
 	@Transient
@@ -373,6 +374,14 @@ public class Activity {
 
 	public void setParser(String parser) {
 		this.parser = parser;
+	}
+
+	public String getCustomData() {
+		return customData;
+	}
+
+	public void setCustomData(String customData) {
+		this.customData = customData;
 	}
 
 }
