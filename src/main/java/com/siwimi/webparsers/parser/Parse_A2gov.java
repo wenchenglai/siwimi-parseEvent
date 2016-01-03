@@ -144,6 +144,7 @@ public class Parse_A2gov implements ParseWebsite {
             event.setToDate(eventToDate);
             event.setToTime(toTime);
             event.setErrorCode(errorCode);
+            event.setCustomData(eventTitle + eventId);
 
             // update location and timezone
             PostProcessing(event, locationRep);
