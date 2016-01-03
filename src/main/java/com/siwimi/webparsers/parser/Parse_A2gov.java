@@ -26,8 +26,15 @@ import java.util.regex.Pattern;
 public class Parse_A2gov implements ParseWebsite {
 
     @Override
-    public List<Activity> getEvents(String eventsSourceUrl, String creator, LocationRepository locationRep) {
+    public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep) {
         List<Activity> activities = new ArrayList<Activity>();
+
+        /* Initialize States*/
+        String defaultZipCode = "48104";
+        String defaultEventHostUrl = "http://www.a2gov.org/departments/Parks-Recreation/Pages/events.aspx";
+        String defaultCity = "Ann Arbor";
+        String defaultState = "Michigan";
+        String defaultCategory = "misc";
 
         try {
             String eventUrl = "https://calendar.a2gov.org/EventListSyndicator.aspx?type=N&number=5&location=3-0-0&adpid=6&nem=No+events+are+available+that+match+your+request&sortorder=ASC&ver=2.0&target=";
@@ -59,16 +66,17 @@ public class Parse_A2gov implements ParseWebsite {
                 String eventDescription = eachPanel.select("p").first().textNodes().toString();
 
                 String eventId = eachPanel.select(".panel-collapse").first().id();
-                // store activity data
-                activity.setCreator("Siwimi robot : City of Ann Arbor");
+                // store event data
+                activity.setParser(parser);
                 activity.setCreatedDate(new Date());
 
                 activity.setTitle(eventTitle);
                 activity.setDescription(eventDescription);
-                // fixed url
-                activity.setUrl("http://www.a2gov.org/departments/Parks-Recreation/Pages/events.aspx");
-                activity.setCity("Ann Arbor");
-                activity.setState("Michigan");
+                activity.setUrl(defaultEventHostUrl);
+                activity.setCity(defaultCity);
+                activity.setState(defaultState);
+                activity.setZipCode(defaultZipCode);
+                activity.setType(defaultCategory);
 
                 // get event from date and end date
                 // get event date
