@@ -31,14 +31,15 @@ public class Parse_A2gov implements ParseWebsite {
 
         /* Initialize States*/
         String defaultZipCode = "48104";
-        String defaultEventHostUrl = "http://www.a2gov.org/departments/Parks-Recreation/Pages/events.aspx";
         String defaultCity = "Ann Arbor";
         String defaultState = "Michigan";
         String defaultCategory = "misc";
 
         String httpResponse = "";
         try {
-            String eventUrl = "https://calendar.a2gov.org/EventListSyndicator.aspx?type=N&number=5&location=3-0-0&adpid=6&nem=No+events+are+available+that+match+your+request&sortorder=ASC&ver=2.0&target=";
+            // event source url http://www.a2gov.org/departments/Parks-Recreation/Pages/events.aspx
+            // this AJAX request to fetch event data
+            String eventUrl = eventsSourceUrl;
             httpResponse = this.getHttpResponse(eventUrl);
         } catch (Exception e) {
             e.printStackTrace();
@@ -133,7 +134,7 @@ public class Parse_A2gov implements ParseWebsite {
             event.setCreatedDate(new Date());
             event.setTitle(eventTitle);
             event.setDescription(eventDescription);
-            event.setUrl(defaultEventHostUrl);
+            event.setUrl(eventsSourceUrl);
             event.setCity(defaultCity);
             event.setState(defaultState);
             event.setZipCode(defaultZipCode);
