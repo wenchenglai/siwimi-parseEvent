@@ -154,10 +154,6 @@ public class Parse_BN2107 implements ParseWebsite {
 		String[] splitted = dateTimeText.split("\\s+");
 		return String.format("%1s %2s", splitted[4], splitted[5]);
 	}
-	
-	private void PostProcessing(Activity newEvent, LocationRepository locationRep) {
-		Location location = locationRep.queryLocation(newEvent.getZipCode(), newEvent.getCity(), newEvent.getState());
-		updateEventLocation(newEvent, location);
-		updateEventTimeZone(newEvent, location);	
-	}
+
+
 }
