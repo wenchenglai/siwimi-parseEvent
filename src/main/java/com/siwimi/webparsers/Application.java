@@ -53,7 +53,7 @@ public class Application implements CommandLineRunner {
 		for (ActivitySite site : sites) { 
 			try {
 				if (site.getIsActive() == null || !site.getIsActive())
-					break;
+                    continue;
 				
 				String classPath = "com.siwimi.webparsers.parser." + site.getClassName();
 				// NOTE: rename parse to parser
