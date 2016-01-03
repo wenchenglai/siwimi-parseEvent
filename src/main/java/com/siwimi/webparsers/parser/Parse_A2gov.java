@@ -172,29 +172,4 @@ public class Parse_A2gov implements ParseWebsite {
         }
         return response;
     }
-
-
-    private void PostProcessing(Activity newEvent, LocationRepository locationRep) {
-        Location location = locationRep.queryLocation(newEvent.getZipCode(), newEvent.getCity(), newEvent.getState());
-        updateEventLocation(newEvent, location);
-        updateEventTimeZone(newEvent, location);
-    }
-
-    /**
-     *
-     * @param pattern rule of regular expression
-     * @param filter needed to be filtered from result
-     * @param text source text
-     * @return
-     */
-    private String getRegexString(String pattern,String filter ,String text){
-        String result = "";
-
-        Pattern rulePatten = Pattern.compile(pattern);
-        Matcher patternMatcher = rulePatten.matcher(text);
-        if (patternMatcher.find()) {
-            result = patternMatcher.group(0).replace(filter,"").trim();
-        }
-        return result;
-    }
 }

@@ -6,6 +6,8 @@ import java.util.Base64;
 import java.util.Base64.Encoder;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jsoup.Jsoup;
 import org.jsoup.Connection.Response;
@@ -153,5 +155,35 @@ public interface ParseWebsite {
 	
 	default Boolean isNothing(String input) {
 		return input == null || input.isEmpty() ? true : false;
+	}
+
+	/**
+	 * update  location and timezone
+	 * @param newEvent
+	 * @param locationRep
+	 */
+	default void PostProcessing(Activity newEvent, LocationRepository locationRep) {
+		Location location = locationRep.queryLocation(newEvent.getZipCode(), newEvent.getCity(), newEvent.getState());
+		updateEventLocation(newEvent, location);
+		updateEventTimeZone(newEvent, location);
+	}
+
+	/**
+	 *
+	 * @param pattern rule of regular expression
+	 * @param filter needed to be filtered from result
+	 * @param text source text
+	 * @return
+	 */
+	default String getRegexString(String pattern,String filter ,String text){
+		String result = "";
+
+		Pattern rulePatten = Pattern.compile(pattern);
+		Matcher patternMatcher = rulePatten.matcher(text);
+		if (patternMatcher.find()) {
+			result = patternMatcher.group(0).replace(filter,"").trim();
+		}
+
+		return result;
 	}
 }
