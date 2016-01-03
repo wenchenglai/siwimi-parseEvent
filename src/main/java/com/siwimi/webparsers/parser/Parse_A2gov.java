@@ -27,7 +27,7 @@ public class Parse_A2gov implements ParseWebsite {
 
     @Override
     public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep) {
-        List<Activity> activities = new ArrayList<Activity>();
+        List<Activity> eventsOutput = new ArrayList<Activity>();
 
         /* Initialize States*/
         String defaultZipCode = "48104";
@@ -36,96 +36,124 @@ public class Parse_A2gov implements ParseWebsite {
         String defaultState = "Michigan";
         String defaultCategory = "misc";
 
+        String httpResponse = "";
         try {
             String eventUrl = "https://calendar.a2gov.org/EventListSyndicator.aspx?type=N&number=5&location=3-0-0&adpid=6&nem=No+events+are+available+that+match+your+request&sortorder=ASC&ver=2.0&target=";
-            String httpResponse = this.getHttpResponse(eventUrl);
-
-            // remove javascript
-            String responseHtml = httpResponse.trim().replace("var response='success'; jQuery('#').html(\"", "").replace("\")", "");
-
-            // decode html
-            responseHtml = responseHtml.replace("\\u003e", ">");
-            responseHtml = responseHtml.replace("\\u003c", "<");
-            responseHtml = responseHtml.replace("&nbsp;", " ");
-
-            // unescape "
-            responseHtml = responseHtml.replace("\\\"", "\"");
-
-            // parse html
-            Document doc = Jsoup.parse(responseHtml);
-
-            // select event panel
-            Elements panelElements = doc.select(".panel");
-
-            // fetch event data
-            for (Element eachPanel : panelElements) {
-                Activity activity = new Activity();
-
-                String eventTitle = eachPanel.select("h4 a").text();
-                String eventTime = eachPanel.select("p strong").text();
-                String eventDescription = eachPanel.select("p").first().textNodes().toString();
-
-                String eventId = eachPanel.select(".panel-collapse").first().id();
-                // store event data
-                activity.setParser(parser);
-                activity.setCreatedDate(new Date());
-
-                activity.setTitle(eventTitle);
-                activity.setDescription(eventDescription);
-                activity.setUrl(defaultEventHostUrl);
-                activity.setCity(defaultCity);
-                activity.setState(defaultState);
-                activity.setZipCode(defaultZipCode);
-                activity.setType(defaultCategory);
-
-                // get event from date and end date
-                // get event date
-                String datePattern = "(?i)[a-zA-Z]+\\s\\d{0,2},\\s\\d{4}";
-                Pattern rule = Pattern.compile(datePattern);
-                Matcher dateMatcher = rule.matcher(eventTime);
-                if (dateMatcher.find()) {
-                    String eventDate = dateMatcher.group(0);
-                    SimpleDateFormat formatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm aaa");
-
-                    // get when event start
-                    String fromTimePattern = "(?i)@\\s\\d{1,2}:\\d{1,2}\\s(AM|PM)\\s";
-                    Pattern fromTimeRule = Pattern.compile(fromTimePattern);
-                    Matcher fromTimeMatcher = fromTimeRule.matcher(eventTime);
-                    if (fromTimeMatcher.find()) {
-                        String fromTime = fromTimeMatcher.group(0).replace("@","").trim();
-                        Date eventFromDate = formatter.parse(eventDate.trim() + " " + fromTime);
-                        //Date eventFromDate = formatter.parse(eventDate.trim());
-                        activity.setFromDate(eventFromDate);
-                    }
-                    // get when event end
-                    String toTimePattern = "(?i)-\\s\\d{1,2}:\\d{1,2}\\s(AM|PM)";
-                    Pattern toTimeRule = Pattern.compile(toTimePattern);
-                    Matcher toTimeMatcher = toTimeRule.matcher(eventTime);
-                    if (toTimeMatcher.find()) {
-                        String toTime = toTimeMatcher.group(0).replace("-","").trim();
-                        //Date EventFromDate = formatter.format(eventDate);
-                        Date eventToDate = formatter.parse(eventDate.trim() + " " + toTime);
-                        activity.setToDate(eventToDate);
-                    }
-                }
-                activities.add(activity);
-            }
+            httpResponse = this.getHttpResponse(eventUrl);
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+        // fail to get any event data
+        if ("".equals(httpResponse))
+            return eventsOutput;
+
+
+        // remove javascript
+        String responseHtml = httpResponse.trim().replace("var response='success'; jQuery('#').html(\"", "").replace("\")", "");
+
+        // decode html
+        responseHtml = responseHtml.replace("\\u003e", ">");
+        responseHtml = responseHtml.replace("\\u003c", "<");
+        responseHtml = responseHtml.replace("&nbsp;", " ");
+
+        // unescape "
+        responseHtml = responseHtml.replace("\\\"", "\"");
+
+        // parse html
+        Document doc = null;
+        try {
+            doc = Jsoup.parse(responseHtml);
+        } catch (Exception e){
+            doc = null;
+            e.printStackTrace();
+        }
+        if (doc == null)
+            return eventsOutput;
+
+
+        // select event panel
+        Elements panelElements = doc.select(".panel");
+
+        // fetch event data
+        for (Element eachPanel : panelElements) {
+            int errorCode = 0;
+            Activity event = new Activity();
+
+            String eventTitle = eachPanel.select("h4 a").text();
+            String eventTime = eachPanel.select("p strong").text();
+            String eventDescription = eachPanel.select("p").first().textNodes().toString();
+
+            String eventId = eachPanel.select(".panel-collapse").first().id();
+
+
+            Date eventFromDate = null;
+            Date eventToDate = null;
+
+            // get date of event
+            String datePattern = "(?i)[a-zA-Z]+\\s\\d{0,2},\\s\\d{4}";
+            String eventDate = this.getRegexString(datePattern, "", eventTime);
+            if ("".equals(eventDate))
+                errorCode += ErrorCode.NoFromDate.getValue();
+
+            // get when event start
+            String fromTimePattern = "(?i)@\\s\\d{1,2}:\\d{1,2}\\s(AM|PM)\\s";
+            String fromTime = this.getRegexString(fromTimePattern, "@", eventTime);
+            if ("".equals(fromTime)) {
+                fromTime = defaultFromTime;
+                errorCode += ErrorCode.NoFromTime.getValue();
+            }
+
+            // get when event end
+            String toTimePattern = "(?i)-\\s\\d{1,2}:\\d{1,2}\\s(AM|PM)";
+            String toTime = this.getRegexString(toTimePattern, "-", eventTime);
+            if ("".equals(toTime)) {
+                toTime = defaultFromTime;
+            }
+
+            // format event from date and end date
+            SimpleDateFormat formatter = new SimpleDateFormat("MMMM dd, yyyy hh:mm aaa");
+            if (!"".equals(eventDate) && !"".equals(fromTime)){
+                try {
+                    eventFromDate = formatter.parse(eventDate.trim() + " " + fromTime);
+                } catch (Exception e){
+                    errorCode += ErrorCode.NoFromDate.getValue();
+                }
+            }
+
+            if (!"".equals(eventDate) && !"".equals(toTime)){
+                try {
+                    eventToDate = formatter.parse(eventDate.trim() + " " + toTime);
+                } catch (Exception e){
+                }
+            }
+
+
+            // store event data
+            event.setParser(parser);
+            event.setCreatedDate(new Date());
+            event.setTitle(eventTitle);
+            event.setDescription(eventDescription);
+            event.setUrl(defaultEventHostUrl);
+            event.setCity(defaultCity);
+            event.setState(defaultState);
+            event.setZipCode(defaultZipCode);
+            event.setType(defaultCategory);
+            event.setFromDate(eventFromDate);
+            event.setFromTime(fromTime);
+            event.setToDate(eventToDate);
+            event.setToTime(toTime);
+            event.setErrorCode(errorCode);
+
+            // update location and timezone
+            PostProcessing(event, locationRep);
+            eventsOutput.add(event);
         }
 
 
-        return activities;
+        return eventsOutput;
     }
 
-	public void saveActivity(List<Activity> activities, ActivityRepository activityRep, LocationRepository locationRep) {
-		if (activities != null) {
-			for (Activity activity : activities) {
-				activity = updateLocationAndTime(activity,locationRep);
-				if (activityRep.queryExistedActivity(activity.getCreator(),activity.getTitle(),activity.getDescription()) == null)
-					activityRep.saveActivity(activity);
-			}
-		}
-	}
+
 
 
     /**
@@ -145,40 +173,28 @@ public class Parse_A2gov implements ParseWebsite {
         return response;
     }
 
-	public Activity updateLocationAndTime(Activity activity, LocationRepository locationRep) {
-		// lookup location from the collection Location;
-		Location thisLocation = locationRep.queryLocation(activity.getZipCode(), activity.getCity(), activity.getState());
-		// set longitude and latitude 
-		if (thisLocation!=null) {
-			double[] location = {thisLocation.getLongitude(), thisLocation.getLatitude()};
-			activity.setZipCode(thisLocation.getZipCode());
-			activity.setLocation(location);
-			activity.setCity(thisLocation.getTownship());
-			activity.setState(thisLocation.getStateCode());
-		}
 
-		SimpleDateFormat formatter = new SimpleDateFormat("EEEE MMMM dd, yyyy hh:mm aaa");
-	    String fromDateString = formatter.format(activity.getFromDate());	 
-	    String toDateString = formatter.format(activity.getToDate());
-	    if (thisLocation.getTimezone() != null) {
-	    	if (thisLocation.getTimezone().contains("-5"))
-	    		formatter.setTimeZone(TimeZone.getTimeZone("America/New_York"));
-	    	else if (thisLocation.getTimezone().contains("-6"))
-	    		formatter.setTimeZone(TimeZone.getTimeZone("America/Winnipeg"));
-	    	else if (thisLocation.getTimezone().contains("-7"))
-	    		formatter.setTimeZone(TimeZone.getTimeZone("America/Phoenix"));
-	    	else if (thisLocation.getTimezone().contains("-8"))
-	    		formatter.setTimeZone(TimeZone.getTimeZone("America/Vancouver"));		    	
-	    } else {
-	    	formatter.setTimeZone(TimeZone.getTimeZone("America/New_York"));
-	    }	    
-	   try {
-		   activity.setFromDate(formatter.parse(fromDateString));
-		   activity.setToDate(formatter.parse(toDateString));
-	   } catch (ParseException e) {
-		   e.printStackTrace();
-	   }								
-		return activity;
-	}
-	
+    private void PostProcessing(Activity newEvent, LocationRepository locationRep) {
+        Location location = locationRep.queryLocation(newEvent.getZipCode(), newEvent.getCity(), newEvent.getState());
+        updateEventLocation(newEvent, location);
+        updateEventTimeZone(newEvent, location);
+    }
+
+    /**
+     *
+     * @param pattern rule of regular expression
+     * @param filter needed to be filtered from result
+     * @param text source text
+     * @return
+     */
+    private String getRegexString(String pattern,String filter ,String text){
+        String result = "";
+
+        Pattern rulePatten = Pattern.compile(pattern);
+        Matcher patternMatcher = rulePatten.matcher(text);
+        if (patternMatcher.find()) {
+            result = patternMatcher.group(0).replace(filter,"").trim();
+        }
+        return result;
+    }
 }
