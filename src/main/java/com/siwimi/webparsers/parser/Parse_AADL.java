@@ -21,8 +21,9 @@ import com.siwimi.webparsers.repository.LocationRepository;
 public class Parse_AADL implements ParseWebsite{
 
 	@Override
-	public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep) {
+	public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep, ActivityRepository activityRep) {
 		List<Activity> activities = new ArrayList<Activity>();
+		String defaultEventHostUrl = "http://www.aadl.org";
 
 		// Retrieve three pages from AADL
 		for (int i=0; i<3; i++) {
@@ -47,39 +48,52 @@ public class Parse_AADL implements ParseWebsite{
 				
 					String[] parts = eventUrl.split("/");
 					String nodeId = parts[2];
+					
 					// Populate data into activity object	
-					if ((title!=null) && !title.isEmpty() && (nodeId!=null)) {
-						Activity activity = new Activity();
-						// Populate activity : creator Id. We need this ensure no duplicated activities posted by robot
-						activity.setParser(parser);
-						// Populate activity : url
-						if (eventUrl!=null)
-							activity.setUrl("http://www.aadl.org"+eventUrl);
-						// Populate activity : title
-						activity.setTitle(title);
-						// Populate activity : type
-						String type = "misc";
-						if (title != null) {
-							if (title.toLowerCase().contains("story"))
-								type = "storytelling";
-							else if (title.toLowerCase().contains("playgroup"))
-								type= "playdate";
-							else if (title.toLowerCase().contains("concert"))
-								type= "concert";
-							else if (title.toLowerCase().contains("film"))
-								type= "movie";								
+					if ((title != null) && !title.isEmpty() && (nodeId != null)) {
+						if (activityRep.isExisted(nodeId)) {
+							continue;
 						}
-						activity.setType(type);
-						// Populate created date
-						activity.setCreatedDate(new Date());
-						// Populate activity : imageUrl and imageData
+						
+						// Populate activity : url
+						if (eventUrl != null)
+							eventUrl = defaultEventHostUrl + eventUrl;
+						
+						// Populate activity : title
+
+						// Populate activity : type
+						int fromAge = 0, toAge = 0;
+						String type = defaultCategory;
+						if (title != null) {
+							if (title.toLowerCase().contains("story")) {
+								type = "storytelling";
+								fromAge = 2;
+								toAge = 5;
+							} else if (title.toLowerCase().contains("playgroup")) {
+								type = "playdate";
+								fromAge = 0;
+								toAge = 2;
+							} else if (title.toLowerCase().contains("dancing babies")) {
+								type = "playdate";
+								fromAge = 0;
+								toAge = 5;
+							} else if (title.toLowerCase().contains("concert")) {
+								type = "concert";
+								fromAge = 2;
+								toAge = 5;
+							} else if (title.toLowerCase().contains("film")) {
+								type = "movie";								
+							}
+						}
+						
 						String imageUrl = e.select("img").attr("src");
-						if (imageUrl!=null) {
-							activity.setImageUrl(imageUrl);		
-							activity.setImageData(getImageBase64(imageUrl));
-						}					
-						// Populate activity : description
-						activity.setDescription(content2);
+						String image64Data = "";
+						if (imageUrl != null) {
+							image64Data = getImageBase64(imageUrl);
+						}
+						
+						Activity activity = new Activity();
+
 						if (content1 != null) {
 							String [] part1;
 							String [] part2;
@@ -135,33 +149,54 @@ public class Parse_AADL implements ParseWebsite{
 							                        + part3[1].trim()
 							                        + ")");
 								activity.setZipCode("48108");
+								
 							} else if (part3[1].contains("Traverwood")) {
 								activity.setAddress("3333 Traverwood Drive (The Ann Arbor District Library, "
 				                        + part3[1].trim()
 				                        + ")");
 								activity.setZipCode("48105");
+								
 							}  else if (part3[1].contains("West Branch")) {
 								activity.setAddress("2503 Jackson Ave (The Ann Arbor District Library, "
 				                        + part3[1].trim()
 				                        + ")");
 								activity.setZipCode("48103");
+								
 							} else if (part3[1].contains("Pittsfield")) {
 								activity.setAddress("2359 Oak Valley Dr. (The Ann Arbor District Library, "
 				                        + part3[1].trim()
 				                        + ")");
 								activity.setZipCode("48103");
+								
 							} else if (part3[1].contains("Downtown")) {
 								activity.setAddress("343 South Fifth Avenue (The Ann Arbor District Library, "
 				                        + part3[1].trim()
 				                        + ")");
 								activity.setZipCode("48104");
+								
 							} else {
 								activity.setZipCode("48105");
 							}
-						}												
+						}
+						
+						activity.setCustomData(nodeId);
+						activity.setParser(parser);
+						
+						activity.setTitle(title);
+						activity.setUrl(eventUrl);
+						activity.setType(type);
+						activity.setCreatedDate(new Date());
+						activity.setFromAge(fromAge);
+						activity.setToAge(toAge);
+						activity.setImageUrl(imageUrl);		
+						activity.setImageData(image64Data);
+						activity.setDescription(content2);
+						
 						activity.setIsDeletedRecord(false);
 						activity.setViewCount(0);
-						//activities.add(activityRep.saveActivity(activity));
+						
+						PostProcessing(activity, locationRep);
+						
 						activities.add(activity);
 					}										
 				}				

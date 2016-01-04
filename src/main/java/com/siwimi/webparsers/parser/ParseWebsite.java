@@ -40,9 +40,10 @@ public interface ParseWebsite {
 	
 	// NOTE: we put shared variables here by all parsers
 	String defaultFromTime = "12:00 am";
+    String defaultCategory = "misc";
 	
 	// NOTE: added locationRep, remove it from saveActivity, because saveActivity should be responsible for one thing only
-	List<Activity> getEvents(String url, String creator, LocationRepository locationRep);
+	List<Activity> getEvents(String url, String creator, LocationRepository locationRep, ActivityRepository activityRep);
 	
 	default int saveEvents(List<Activity> activities, ActivityRepository activityRep) {		
 		// NOTE: avoid nested code, also good for input validation.
@@ -51,12 +52,8 @@ public interface ParseWebsite {
 		
 		int totalEventSaved = 0;
 		for (Activity activity : activities) {
-			// NOTE: will title and from date, from time be enough?
-			// TODO: we need to move this logic back to parsers - parser should know better how to handle duplicate events.
-			if (activityRep.queryExistedActivity(activity.getCreator(),activity.getTitle(),activity.getDescription()) == null) {
-				activityRep.saveActivity(activity);
+			if (activityRep.saveActivity(activity) != null);
 				totalEventSaved += 1;
-			}
 		}
 		return totalEventSaved;
 	};
@@ -158,7 +155,7 @@ public interface ParseWebsite {
 	}
 
 	/**
-	 * update  location and timezone
+	 * update  location and time zone
 	 * @param newEvent
 	 * @param locationRep
 	 */
