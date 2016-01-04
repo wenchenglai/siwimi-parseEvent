@@ -3,6 +3,7 @@ package com.siwimi.webparsers;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -58,7 +59,7 @@ public class Application implements CommandLineRunner {
 				String classPath = "com.siwimi.webparsers.parser." + site.getClassName();
 				// NOTE: rename parse to parser
 				ParseWebsite parser = (ParseWebsite) ParseWebsite.class.getClassLoader().loadClass(classPath).newInstance();
-				List<Activity> events = parser.getEvents(site.getUrl(), site.getSiteName(), locationRep);
+				List<Activity> events = parser.getEvents(site.getUrl(), site.getSiteName(), locationRep, activityRep);
 				int totalEventParsed = events.size();
 				int totalEventSaved = parser.saveEvents(events, activityRep);
 				
@@ -71,7 +72,11 @@ public class Application implements CommandLineRunner {
 				e.printStackTrace();
 			}
 		}
-		System.out.println("Finished all parsers operations.");
+		System.out.println(
+				String.format("Finished %1s active parsers operations of out total %2s parsers.", 
+						sites.stream().filter(site -> site.getIsActive()).collect(Collectors.toList()).size(),
+						sites.size()
+						));
 		printSummary(map);
 	}
 	

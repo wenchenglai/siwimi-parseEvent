@@ -1,7 +1,6 @@
 package com.siwimi.webparsers.parser;
 
 import com.siwimi.webparsers.domain.Activity;
-import com.siwimi.webparsers.domain.Location;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
 
@@ -14,26 +13,23 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class Parse_A2gov implements ParseWebsite {
 
     @Override
-    public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep) {
+    public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep, ActivityRepository activityRep) {
         List<Activity> eventsOutput = new ArrayList<Activity>();
 
         /* Initialize States*/
+        String defaultEventUrlForHuman = "http://www.a2gov.org/departments/Parks-Recreation/Pages/events.aspx";
+        String defaultAddressAnnArborFarmerMarket = "315 Detroit St";
         String defaultZipCode = "48104";
         String defaultCity = "Ann Arbor";
         String defaultState = "Michigan";
-        String defaultCategory = "misc";
 
         String httpResponse = "";
         try {
@@ -81,11 +77,23 @@ public class Parse_A2gov implements ParseWebsite {
             Activity event = new Activity();
 
             String eventTitle = eachPanel.select("h4 a").text();
+            String address = "";
+            
+			if (eventTitle != null) {
+				if (eventTitle.toLowerCase().contains("ann arbor farmers market")) {
+					address = defaultAddressAnnArborFarmerMarket;
+				}
+			} 
+            
+            
             String eventTime = eachPanel.select("p strong").text();
             String eventDescription = eachPanel.select("p").first().textNodes().toString();
 
             String eventId = eachPanel.select(".panel-collapse").first().id();
 
+			if (activityRep.isExisted(eventTitle + eventId)) {
+				continue;
+			}
 
             Date eventFromDate = null;
             Date eventToDate = null;
@@ -134,10 +142,9 @@ public class Parse_A2gov implements ParseWebsite {
             event.setCreatedDate(new Date());
             event.setTitle(eventTitle);
             event.setDescription(eventDescription);
-            event.setUrl(eventsSourceUrl);
-            event.setCity(defaultCity);
-            event.setState(defaultState);
+            event.setUrl(defaultEventUrlForHuman);
             event.setZipCode(defaultZipCode);
+            event.setAddress(address);
             event.setType(defaultCategory);
             event.setFromDate(eventFromDate);
             event.setFromTime(fromTime);
@@ -146,12 +153,10 @@ public class Parse_A2gov implements ParseWebsite {
             event.setErrorCode(errorCode);
             event.setCustomData(eventTitle + eventId);
 
-            // update location and timezone
+            // update location and time zone
             PostProcessing(event, locationRep);
             eventsOutput.add(event);
         }
-
-
         return eventsOutput;
     }
 

@@ -43,6 +43,25 @@ public class ActivityRepositoryImpl implements ActivityRepositoryCustom {
 		return mongoTemplate.findOne(new Query(c), Activity.class, "Activity");
 				
 	}
+	
+	@SuppressWarnings("static-access")
+	@Override
+	public Boolean isExisted(String customData) {
+		if (customData == null) {
+			return false;
+		}
+		
+		List<Criteria> criterias = new ArrayList<Criteria>();
+		
+		criterias.add(new Criteria().where("isDeletedRecord").is(false));
+		criterias.add(new Criteria().where("customData").is(customData));
+		
+		Criteria c = new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()]));
+		
+		Activity one = mongoTemplate.findOne(new Query(c), Activity.class, "Activity");
+		
+		return one != null;
+	}	
 		
 	@Override
 	public Activity saveActivity(Activity newActivity) {		
