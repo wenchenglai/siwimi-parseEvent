@@ -13,13 +13,13 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.siwimi.webparsers.domain.Activity;
-import com.siwimi.webparsers.domain.Location;
+import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
 
 public class Parse_BN2107 implements ParseWebsite {
 	
 	@Override
-	public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep) {
+	public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep, ActivityRepository activityRep) {
 
 		// Step 1: Initialize States
 		List<Activity> eventsOutput = new ArrayList<Activity>();
@@ -63,12 +63,22 @@ public class Parse_BN2107 implements ParseWebsite {
 			int errorCode = 0;
 			Element link = main.child(0);
 			String event_url = String.format("%1s%2s", defaultEventHostUrl, link.attr("href"));
+			String eventId = getEventId(event_url);
+			
+			if (activityRep.isExisted(eventId)) {
+				continue;
+			}
+			
 			String title = link.child(0).text();
 			
-			String category = "misc";
+			String category = defaultCategory;
 			String possibleType = main.child(2).text();
-			if (possibleType.contains("Storytime"))
+			int fromAge = 0, toAge = 0;
+			if (possibleType.contains("Storytime")) {
 				category = "storytelling";
+				fromAge = 1;
+				toAge = 6;
+			}
 			
 			// This page's dateTime location could change, depends on if this event has ageGroup specified
 			Element dateTimeElement = main.child(6);
@@ -97,6 +107,7 @@ public class Parse_BN2107 implements ParseWebsite {
 
 			Activity newEvent = new Activity();
 			
+			newEvent.setCustomData(eventId);
 			newEvent.setParser(parser);
 			newEvent.setUrl(event_url);
 			newEvent.setTitle(title);
@@ -104,6 +115,8 @@ public class Parse_BN2107 implements ParseWebsite {
 			newEvent.setCreatedDate(new Date());
 			newEvent.setFromDate(fromDate);
 			newEvent.setFromTime(fromTime);
+			newEvent.setFromAge(fromAge);
+			newEvent.setToAge(toAge);
 			newEvent.setDescription(description);
 			newEvent.setAddress(defaultAddress);
 			newEvent.setZipCode(defaultZipCode);
@@ -155,5 +168,8 @@ public class Parse_BN2107 implements ParseWebsite {
 		return String.format("%1s %2s", splitted[4], splitted[5]);
 	}
 
-
+	private String getEventId(String url) {
+		String[] splitted = url.split("/");
+		return splitted[4];
+	}
 }
