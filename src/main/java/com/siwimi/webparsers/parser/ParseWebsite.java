@@ -183,4 +183,23 @@ public interface ParseWebsite {
 
 		return result;
 	}
+
+    /**
+     * set event image and image data
+     *
+     * @param event
+     * @param imageUrl
+     * @return errorCode
+     */
+    default int setImage(Activity event, String imageUrl) {
+        int errorCode = 0;
+        event.setImageUrl(imageUrl);
+        String base64Image = getImageBase64(imageUrl);
+        if (base64Image != null)
+            event.setImageData(base64Image);
+        else
+            errorCode = ErrorCode.NoImageBase64.getValue();
+
+        return errorCode;
+    }
 }
