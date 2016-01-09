@@ -16,7 +16,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
     @CompoundIndex(name = "type_createdDate", def = "{'type': 1, 'createdDate': -1}"),
     @CompoundIndex(name = "fromDate_createdDate", def = "{'fromDate': 1, 'createdDate': 1}")
 })
+
 public class Activity {
+
+	public enum LifeStage {
+		Submitted,
+		Approved,
+		Rejected
+	}
 
 	@Id
 	private String id;
@@ -62,6 +69,8 @@ public class Activity {
 	private int errorCode;
 	private String parser;
 	private String customData;
+	
+	private LifeStage stage; // 0: submitted, 1: approved, 2: rejected
 	
 	// User comments
 	@Transient
@@ -382,6 +391,14 @@ public class Activity {
 
 	public void setCustomData(String customData) {
 		this.customData = customData;
+	}
+
+	public LifeStage getStage() {
+		return stage;
+	}
+
+	public void setStage(LifeStage stage) {
+		this.stage = stage;
 	}
 
 }
