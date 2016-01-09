@@ -14,6 +14,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.domain.Activity.LifeStage;
 import com.siwimi.webparsers.domain.Location;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
@@ -191,7 +192,7 @@ public class Parse_AADL implements ParseWebsite{
 						activity.setImageUrl(imageUrl);		
 						activity.setImageData(image64Data);
 						activity.setDescription(content2);
-						
+						activity.setStage(LifeStage.Approved);
 						activity.setIsDeletedRecord(false);
 						activity.setViewCount(0);
 						

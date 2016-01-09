@@ -1,6 +1,7 @@
 package com.siwimi.webparsers.parser;
 
 import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.domain.Activity.LifeStage;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
 
@@ -12,7 +13,6 @@ import org.jsoup.select.Elements;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,8 +28,6 @@ public class Parse_A2gov implements ParseWebsite {
         String defaultEventUrlForHuman = "http://www.a2gov.org/departments/Parks-Recreation/Pages/events.aspx";
         String defaultAddressAnnArborFarmerMarket = "315 Detroit St";
         String defaultZipCode = "48104";
-        String defaultCity = "Ann Arbor";
-        String defaultState = "Michigan";
 
         String httpResponse = "";
         try {
@@ -74,7 +72,6 @@ public class Parse_A2gov implements ParseWebsite {
         // fetch event data
         for (Element eachPanel : panelElements) {
             int errorCode = 0;
-            Activity event = new Activity();
 
             String eventTitle = eachPanel.select("h4 a").text();
             String address = "";
@@ -138,24 +135,28 @@ public class Parse_A2gov implements ParseWebsite {
 
 
             // store event data
-            event.setParser(parser);
-            event.setCreatedDate(new Date());
-            event.setTitle(eventTitle);
-            event.setDescription(eventDescription);
-            event.setUrl(defaultEventUrlForHuman);
-            event.setZipCode(defaultZipCode);
-            event.setAddress(address);
-            event.setType(defaultCategory);
-            event.setFromDate(eventFromDate);
-            event.setFromTime(fromTime);
-            event.setToDate(eventToDate);
-            event.setToTime(toTime);
-            event.setErrorCode(errorCode);
-            event.setCustomData(eventTitle + eventId);
+            Activity newEvent = new Activity();
+			newEvent.setIsDeletedRecord(false);
+            newEvent.setCreatedDate(new Date());
+            newEvent.setParser(parser);
+            newEvent.setTitle(eventTitle);
+            newEvent.setDescription(eventDescription);
+            newEvent.setUrl(defaultEventUrlForHuman);
+            newEvent.setZipCode(defaultZipCode);
+            newEvent.setAddress(address);
+            newEvent.setType(defaultCategory);
+            newEvent.setFromDate(eventFromDate);
+            newEvent.setFromTime(fromTime);
+            newEvent.setToDate(eventToDate);
+            newEvent.setToTime(toTime);
+            newEvent.setErrorCode(errorCode);
+            newEvent.setCustomData(eventTitle + eventId);
+            newEvent.setStage(LifeStage.Approved);
+
 
             // update location and time zone
-            PostProcessing(event, locationRep);
-            eventsOutput.add(event);
+            PostProcessing(newEvent, locationRep);
+            eventsOutput.add(newEvent);
         }
         return eventsOutput;
     }
