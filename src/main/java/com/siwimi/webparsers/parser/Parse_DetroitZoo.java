@@ -1,9 +1,11 @@
 package com.siwimi.webparsers.parser;
 
 import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.domain.Activity.Category;
 import com.siwimi.webparsers.domain.Activity.LifeStage;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,7 +30,7 @@ public class Parse_DetroitZoo implements ParseWebsite {
         String defaultState = "Michigan";
         String defaultAddress = "8450 W. 10 Mile Road, Royal Oak, MI ";
         String monthRegexRule = "(January|February|March|April|May|June|July|August|September|October|November|December)";
-        String category = "Zoo";
+        Category category = Category.zoo;
 
         // parse event index page
         Document doc = null;

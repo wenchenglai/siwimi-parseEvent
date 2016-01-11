@@ -13,6 +13,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.domain.Activity.Category;
 import com.siwimi.webparsers.domain.Activity.LifeStage;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
@@ -72,11 +73,11 @@ public class Parse_BN2107 implements ParseWebsite {
 			
 			String title = link.child(0).text();
 			
-			String category = defaultCategory;
+			Category category = defaultCategory;
 			String possibleType = main.child(2).text();
 			int fromAge = 0, toAge = 0;
 			if (possibleType.contains("Storytime")) {
-				category = "storytelling";
+				category = Category.storytelling;
 				fromAge = 1;
 				toAge = 6;
 			}

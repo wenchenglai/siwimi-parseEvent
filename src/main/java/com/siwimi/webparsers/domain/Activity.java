@@ -24,6 +24,25 @@ public class Activity {
 		Approved,
 		Rejected
 	}
+	
+	public enum Category {
+		animal,
+		art,
+		concert,
+		farm,
+		festival,
+		game,
+		movie, 
+		museum,
+		parent,
+		playdate,
+		science,
+		show,
+		sport, 
+		storytelling,
+		zoo,
+		misc
+	}
 
 	@Id
 	private String id;
@@ -43,20 +62,7 @@ public class Activity {
 	private String imageData;
 	private String imageUrl;
 	
-	/*
-	 * birthday
-       concert
-       farm
-       storytelling
-       movie
-       museum
-       playdate
-       festival
-       show 
-       sport
-       misc"
-	 * */
-	private String type;
+	private Category type;
 	private int like;
 	private int viewCount;
 	private double[] location;
@@ -239,11 +245,11 @@ public class Activity {
 		this.url = url;
 	}
 	
-	public String getType() {
+	public Category getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(Category type) {
 		this.type = type;
 	}
 
