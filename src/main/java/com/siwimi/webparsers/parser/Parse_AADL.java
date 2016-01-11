@@ -14,6 +14,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.domain.Activity.Category;
 import com.siwimi.webparsers.domain.Activity.LifeStage;
 import com.siwimi.webparsers.domain.Location;
 import com.siwimi.webparsers.repository.ActivityRepository;
@@ -64,26 +65,26 @@ public class Parse_AADL implements ParseWebsite{
 
 						// Populate activity : type
 						int fromAge = 0, toAge = 0;
-						String type = defaultCategory;
+						Category type = defaultCategory;
 						if (title != null) {
 							if (title.toLowerCase().contains("story")) {
-								type = "storytelling";
+								type = Category.storytelling;
 								fromAge = 2;
 								toAge = 5;
 							} else if (title.toLowerCase().contains("playgroup")) {
-								type = "playdate";
+								type =  Category.playdate;
 								fromAge = 0;
 								toAge = 2;
 							} else if (title.toLowerCase().contains("dancing babies")) {
-								type = "playdate";
+								type = Category.playdate;
 								fromAge = 0;
 								toAge = 5;
 							} else if (title.toLowerCase().contains("concert")) {
-								type = "concert";
+								type = Category.concert;
 								fromAge = 2;
 								toAge = 5;
 							} else if (title.toLowerCase().contains("film")) {
-								type = "movie";								
+								type = Category.movie;								
 							}
 						}
 						

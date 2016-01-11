@@ -13,6 +13,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.Connection.Response;
 
 import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.domain.Activity.Category;
 import com.siwimi.webparsers.domain.Location;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
@@ -40,7 +41,7 @@ public interface ParseWebsite {
 	
 	// NOTE: we put shared variables here by all parsers
 	String defaultFromTime = "12:00 am";
-    String defaultCategory = "misc";
+	Category defaultCategory = Category.misc;
 	
 	// NOTE: added locationRep, remove it from saveActivity, because saveActivity should be responsible for one thing only
 	List<Activity> getEvents(String url, String creator, LocationRepository locationRep, ActivityRepository activityRep);

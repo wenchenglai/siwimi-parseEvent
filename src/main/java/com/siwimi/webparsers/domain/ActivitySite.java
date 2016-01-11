@@ -13,6 +13,7 @@ public class ActivitySite {
 	private String url;
 	private String className;
 	private Boolean isActive;
+	private Boolean isDeletedRecord = false;
 	
 	public String getId() {
 		return id;
@@ -43,5 +44,11 @@ public class ActivitySite {
 	}
 	public void setIsActive(Boolean isActive) {
 		this.isActive = isActive;
+	}
+	public Boolean getIsDeletedRecord() {
+		return isDeletedRecord;
+	}
+	public void setIsDeletedRecord(Boolean isDeletedRecord) {
+		this.isDeletedRecord = isDeletedRecord;
 	}	
 }
