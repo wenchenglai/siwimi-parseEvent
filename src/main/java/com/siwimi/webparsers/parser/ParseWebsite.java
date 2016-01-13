@@ -13,6 +13,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.Connection.Response;
 
 import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.domain.Activity.Category;
 import com.siwimi.webparsers.domain.Location;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
@@ -40,7 +41,7 @@ public interface ParseWebsite {
 	
 	// NOTE: we put shared variables here by all parsers
 	String defaultFromTime = "12:00 am";
-    String defaultCategory = "misc";
+	Category defaultCategory = Category.misc;
 	
 	// NOTE: added locationRep, remove it from saveActivity, because saveActivity should be responsible for one thing only
 	List<Activity> getEvents(String url, String creator, LocationRepository locationRep, ActivityRepository activityRep);
@@ -64,7 +65,10 @@ public interface ParseWebsite {
 	 * Location Information includes longitude, latitude, missing city, state or zip code.
 	 * <p>
 	 * This method will ONLY update the field that's missing.
-	 *
+	 * The recommended approach when parsing an event is if you ONLY know the zip code, then just set the zip code field
+	 * of the newly created event.  Then calling this method will help you to populate the other two missing fields: city and state.
+	 * However, if you absolutely know your location, i.e. you are parsing events for a local zoo, since a zoo's location is the same,
+	 * you can then just set the zip code, city and state directly.
 	 * @param  event	an event that needs location information updated by system
 	 * @param  location	Location object that has all the location information for this event
 	 */
