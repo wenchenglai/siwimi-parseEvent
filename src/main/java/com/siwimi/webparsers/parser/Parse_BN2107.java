@@ -13,6 +13,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.domain.Activity.Category;
+import com.siwimi.webparsers.domain.Activity.LifeStage;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
 
@@ -71,11 +73,11 @@ public class Parse_BN2107 implements ParseWebsite {
 			
 			String title = link.child(0).text();
 			
-			String category = defaultCategory;
+			Category category = defaultCategory;
 			String possibleType = main.child(2).text();
 			int fromAge = 0, toAge = 0;
 			if (possibleType.contains("Storytime")) {
-				category = "storytelling";
+				category = Category.storytelling;
 				fromAge = 1;
 				toAge = 6;
 			}
@@ -104,25 +106,6 @@ public class Parse_BN2107 implements ParseWebsite {
 			} catch (Exception e3) {
 				errorCode += ErrorCode.NoFromDate.getValue();
 			}
-
-			Activity newEvent = new Activity();
-			
-			newEvent.setCustomData(eventId);
-			newEvent.setParser(parser);
-			newEvent.setUrl(event_url);
-			newEvent.setTitle(title);
-			newEvent.setType(category);
-			newEvent.setCreatedDate(new Date());
-			newEvent.setFromDate(fromDate);
-			newEvent.setFromTime(fromTime);
-			newEvent.setFromAge(fromAge);
-			newEvent.setToAge(toAge);
-			newEvent.setDescription(description);
-			newEvent.setAddress(defaultAddress);
-			newEvent.setZipCode(defaultZipCode);
-			newEvent.setIsDeletedRecord(false);
-			newEvent.setViewCount(0);
-			newEvent.setErrorCode(errorCode);
 			
 			Element imageRow = e.child(2);
 			String imageUrl = defaultEventImgUrl;
@@ -132,15 +115,26 @@ public class Parse_BN2107 implements ParseWebsite {
 				if (imageUrl.substring(0, 4) != "http")
 					imageUrl = String.format("http:%1s", imageUrl);
 			}
-			
-			newEvent.setImageUrl(imageUrl);
-			String base64Image = getImageBase64(imageUrl);
-			
-			if (base64Image != null)
-				newEvent.setImageData(base64Image);
-			else 
-				errorCode += ErrorCode.NoImageBase64.getValue();
-			
+
+			Activity newEvent = new Activity();
+			newEvent.setIsDeletedRecord(false);		
+			newEvent.setCreatedDate(new Date());
+			newEvent.setCustomData(eventId);
+			newEvent.setParser(parser);
+			newEvent.setUrl(event_url);
+			newEvent.setTitle(title);
+			newEvent.setType(category);
+			newEvent.setFromDate(fromDate);
+			newEvent.setFromTime(fromTime);
+			newEvent.setFromAge(fromAge);
+			newEvent.setToAge(toAge);
+			newEvent.setDescription(description);
+			newEvent.setAddress(defaultAddress);
+			newEvent.setZipCode(defaultZipCode);
+            newEvent.setStage(LifeStage.Approved);
+            errorCode += this.setImage(newEvent, imageUrl);
+			newEvent.setErrorCode(errorCode);
+				
 			PostProcessing(newEvent, locationRep);
 			
 			eventsOutput.add(newEvent);

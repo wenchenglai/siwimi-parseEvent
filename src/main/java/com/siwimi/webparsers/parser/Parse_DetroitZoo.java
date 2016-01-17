@@ -1,8 +1,11 @@
 package com.siwimi.webparsers.parser;
 
 import com.siwimi.webparsers.domain.Activity;
+import com.siwimi.webparsers.domain.Activity.Category;
+import com.siwimi.webparsers.domain.Activity.LifeStage;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,7 +30,7 @@ public class Parse_DetroitZoo implements ParseWebsite {
         String defaultState = "Michigan";
         String defaultAddress = "8450 W. 10 Mile Road, Royal Oak, MI ";
         String monthRegexRule = "(January|February|March|April|May|June|July|August|September|October|November|December)";
-        String category = "Zoo";
+        Category category = Category.zoo;
 
         // parse event index page
         Document doc = null;
@@ -44,7 +47,7 @@ public class Parse_DetroitZoo implements ParseWebsite {
         Elements events = doc.select(".shuffle-item");
         for (Element eachEvent : events) {
             int errorCode = 0;
-            Activity newEvent = new Activity();
+
             Document eventDetail = null;
             String eventDetailUrl = eachEvent.select("a").attr("href");
             // can't fetch detail page
@@ -177,10 +180,11 @@ public class Parse_DetroitZoo implements ParseWebsite {
                 errorCode += ErrorCode.NoFromTime.getValue();
             }
 
-
             // store event
-            newEvent.setParser(parser);
+            Activity newEvent = new Activity();
+			newEvent.setIsDeletedRecord(false); 
             newEvent.setCreatedDate(new Date());
+			newEvent.setParser(parser);
             newEvent.setTitle(eventTitle);
             newEvent.setDescription(eventDescription);
             newEvent.setZipCode(defaultZipCode);
@@ -192,6 +196,7 @@ public class Parse_DetroitZoo implements ParseWebsite {
             newEvent.setFromDate(eventFromDate);
             newEvent.setFromTime(eventFromTime);
             newEvent.setCustomData(eventDetailUrl);
+            newEvent.setStage(LifeStage.Approved);
 
             // fetch image
             String imageUrl = eachEvent.select("img").attr("src");
@@ -204,6 +209,5 @@ public class Parse_DetroitZoo implements ParseWebsite {
         }
 
         return eventsOutput;
-
     }
 }
