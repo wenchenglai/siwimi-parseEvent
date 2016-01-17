@@ -1,7 +1,14 @@
 package com.siwimi.webparsers.repository.mongo;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -65,8 +72,57 @@ public class ActivityRepositoryImpl implements ActivityRepositoryCustom {
 		
 	@Override
 	public Activity saveActivity(Activity newActivity) {		
+		
+		// Save new event into mongoDB regardless the image.
 		mongoTemplate.indexOps(Activity.class).ensureIndex(new GeospatialIndex("location"));
 		mongoTemplate.save(newActivity, "Activity");
+	
+		// update imageURL
+		if (newActivity.getImageData() != null) {			
+			// get image path
+			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+			Properties properties = new Properties();
+			try {
+				properties.load(classLoader.getResourceAsStream("eventImagePath.properties"));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+			// get image type
+			String type = ".png";
+			String [] parts = newActivity.getImageData().split(",");
+			if (parts[0].contains("jpeg"))
+				type = ".jpg";
+			else if (parts[0].contains("gif"))
+				type = ".gif";
+			
+			// Decode image from String
+			byte[] decodedData = Base64.getDecoder().decode(parts[1]);
+			
+			// Save image to file			
+	        if (decodedData != null) {
+	            try {
+	            	String rootPath = System.getProperty("user.home");
+	            	File dir = new File(rootPath + properties.getProperty("path"));
+	                if (!dir.exists())
+	                    dir.mkdirs();
+	                File serverFile = new File(dir.getAbsolutePath() + File.separator + newActivity.getId()+type);
+	                
+	                BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
+	                stream.write(decodedData);
+	                stream.close();
+	                
+	                // update imageURL and save to DB
+	                newActivity.setImageUrl(rootPath+properties.getProperty("path")+newActivity.getId()+type);
+	                mongoTemplate.save(newActivity, "Activity");
+	            } catch (Exception e) {
+	            	e.printStackTrace();
+	            }
+	        } 
+	    }
+		
 		return newActivity;
 	}	
 	
