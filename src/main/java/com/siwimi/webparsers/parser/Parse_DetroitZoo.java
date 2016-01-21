@@ -50,6 +50,9 @@ public class Parse_DetroitZoo implements Parser {
 
             Document eventDetail = null;
             String eventDetailUrl = eachEvent.select("a").attr("href");
+            if (activityRep.isExisted(eventDetailUrl, parser)) {
+                continue;
+            }
             // can't fetch detail page
             if ("".equals(eventDetailUrl)) {
                 continue;

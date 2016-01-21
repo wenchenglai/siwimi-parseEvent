@@ -48,7 +48,7 @@ public class Parse_HenryFord implements Parser {
             return eventsOutput;
 
         String eventTableId = "ctl00_ContentPlaceHolder1_ctl05_dl_list";
-        int eventCounter = 1;
+        int eventCounter = 0;
 
         Elements events = doc.select("#" + eventTableId + " table tr");
         for (Element eachEvent : events) {
@@ -65,6 +65,8 @@ public class Parse_HenryFord implements Parser {
             if ("".equals(eachEvent.text())) {
                 continue;
             }
+            // counter as evnetId
+            eventCounter++;
 
             // generate event Id
             String eventCounterStr = String.format("%02d", eventCounter);
@@ -76,6 +78,10 @@ public class Parse_HenryFord implements Parser {
                 errorCode += ErrorCode.NoTitle.getValue();
             }
             String eventUrl = eventTitleElement.attr("abs:href");
+            // skip duplicate events
+            if (activityRep.isExisted(eventUrl, parser)) {
+                continue;
+            }
             //eventUrl
             String eventDescription = eachEvent.select("#" + eventTableId + "_ctl" + eventCounterStr + "_Label3").text().trim();
             if ("".equals(eventDescription)) {
@@ -244,7 +250,6 @@ public class Parse_HenryFord implements Parser {
             PostProcessing(newEvent, locationRep);
 
             eventsOutput.add(newEvent);
-            eventCounter++;
         }
         
         return eventsOutput;
