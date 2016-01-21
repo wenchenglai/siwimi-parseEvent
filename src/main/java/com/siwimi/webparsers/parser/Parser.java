@@ -18,7 +18,7 @@ import com.siwimi.webparsers.domain.Location;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
 
-public interface ParseWebsite {
+public interface Parser {
 	enum ErrorCode {
 		NoError(0),
 		NoFromDate(1),

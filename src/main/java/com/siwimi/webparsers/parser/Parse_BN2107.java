@@ -18,12 +18,14 @@ import com.siwimi.webparsers.domain.Activity.LifeStage;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
 
-public class Parse_BN2107 implements ParseWebsite {
+public class Parse_BN2107 implements Parser {
 	
 	@Override
 	public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep, ActivityRepository activityRep) {
 
 		// Step 1: Initialize States
+		// Typically each parser has its unique data need.  For example, this is a book store's events.
+		// Since a book store has the same address, so I created global variables here to store address data.
 		List<Activity> eventsOutput = new ArrayList<Activity>();
 		String defaultZipCode = "48104";
 		String defaultAddress = "3235 Washtenaw Ave";
@@ -43,13 +45,24 @@ public class Parse_BN2107 implements ParseWebsite {
 			return eventsOutput;
 		
 		// Step 3: Select Elements in list style
-		Element divRoot = doc.select("div.content").first();
+		// For performance reason, typically you select the whole area first using the parent container.
+		// Then you use the high specificity selector (e.g. .class1.class2.class4) on the previously selected area.
+		Element divRoot = doc.select("div.content").first();  // divRoot is the container area
 		if (divRoot == null)
 			return eventsOutput;
 		
 		Elements rows = divRoot.select("div.col-sm-12.col-md-12.col-lg-12.col-xs-12");
 		
-		// Step 4: Loop through the elements list - add event
+		// Step 4: Loop through the elements list - each look will add an event
+		// Typically in here, every parser will have different code because each parser has different HTML markup
+		// But the general guidelines are:
+		// 1.  Always remember to find out the unique key that can identify this specific event.  We need this unique key so 
+		//     when we run the same parser multiple times, there will be no duplicate events.
+		//     Each parser needs to find its own unique key.  Some events pages have unique eventId, like this book store,
+		//     but some event pages has to use combination of fields such as title + date.
+		//     Each activity class has a String field call "customData".  You store your unique key in this customData field.
+		// 2.  Always remember to find out if this event already exists in the database, before you do the full event parsing.  
+		//     Do this early in the process.
 		for (Element e : rows) {
 			if (e.children().size() < 2) {
 				continue;
@@ -67,10 +80,13 @@ public class Parse_BN2107 implements ParseWebsite {
 			String event_url = String.format("%1s%2s", defaultEventHostUrl, link.attr("href"));
 			String eventId = getEventId(event_url);
 			
-			if (activityRep.isExisted(eventId)) {
+			// eventId is guaranteed unique, so let's check it with the database.
+			if (activityRep.isExisted(eventId, parser)) {
 				continue;
 			}
 			
+			// at this point, we've done our most of exceptional checking.
+			// It's safe to parse and store the event now.
 			String title = link.child(0).text();
 			
 			Category category = defaultCategory;
@@ -116,6 +132,9 @@ public class Parse_BN2107 implements ParseWebsite {
 					imageUrl = String.format("http:%1s", imageUrl);
 			}
 
+			// It's a good idea to create the event object and set the fields at the same place
+			// So in future if we want to add new field or delete a field, we always know to locate
+			// at the bottom of this getEvents function.
 			Activity newEvent = new Activity();
 			newEvent.setIsDeletedRecord(false);		
 			newEvent.setCreatedDate(new Date());
@@ -135,6 +154,8 @@ public class Parse_BN2107 implements ParseWebsite {
             errorCode += this.setImage(newEvent, imageUrl);
 			newEvent.setErrorCode(errorCode);
 				
+			// Every event must run this function after event object is created.
+			// Basically it'll populate some necessary data such as coordinates and time zone.
 			PostProcessing(newEvent, locationRep);
 			
 			eventsOutput.add(newEvent);
