@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Parse_A2gov implements ParseWebsite {
+public class Parse_A2gov implements Parser {
 
     @Override
     public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep, ActivityRepository activityRep) {
@@ -88,7 +88,7 @@ public class Parse_A2gov implements ParseWebsite {
 
             String eventId = eachPanel.select(".panel-collapse").first().id();
 
-			if (activityRep.isExisted(eventTitle + eventId)) {
+			if (activityRep.isExisted(eventTitle + eventId, parser)) {
 				continue;
 			}
 

@@ -12,7 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import com.siwimi.webparsers.domain.Activity;
 import com.siwimi.webparsers.domain.ActivitySite;
-import com.siwimi.webparsers.parser.ParseWebsite;
+import com.siwimi.webparsers.parser.Parser;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.ActivitySiteRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
@@ -58,7 +58,7 @@ public class Application implements CommandLineRunner {
 				
 				String classPath = "com.siwimi.webparsers.parser." + site.getClassName();
 				// NOTE: rename parse to parser
-				ParseWebsite parser = (ParseWebsite) ParseWebsite.class.getClassLoader().loadClass(classPath).newInstance();
+				Parser parser = (Parser) Parser.class.getClassLoader().loadClass(classPath).newInstance();
 				List<Activity> events = parser.getEvents(site.getUrl(), site.getSiteName(), locationRep, activityRep);
 				int totalEventParsed = events.size();
 				int totalEventSaved = parser.saveEvents(events, activityRep);
