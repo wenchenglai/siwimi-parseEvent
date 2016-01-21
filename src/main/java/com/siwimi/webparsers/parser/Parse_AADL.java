@@ -20,7 +20,7 @@ import com.siwimi.webparsers.domain.Location;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
 
-public class Parse_AADL implements ParseWebsite{
+public class Parse_AADL implements Parser{
 
 	@Override
 	public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep, ActivityRepository activityRep) {
@@ -53,7 +53,7 @@ public class Parse_AADL implements ParseWebsite{
 					
 					// Populate data into activity object	
 					if ((title != null) && !title.isEmpty() && (nodeId != null)) {
-						if (activityRep.isExisted(nodeId)) {
+						if (activityRep.isExisted(nodeId, parser)) {
 							continue;
 						}
 						

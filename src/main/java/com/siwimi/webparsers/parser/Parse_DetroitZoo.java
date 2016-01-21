@@ -18,7 +18,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class Parse_DetroitZoo implements ParseWebsite {
+public class Parse_DetroitZoo implements Parser {
 
     @Override
     public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep, ActivityRepository activityRep) {

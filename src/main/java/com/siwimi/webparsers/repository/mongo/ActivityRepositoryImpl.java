@@ -53,7 +53,7 @@ public class ActivityRepositoryImpl implements ActivityRepositoryCustom {
 	
 	@SuppressWarnings("static-access")
 	@Override
-	public Boolean isExisted(String customData) {
+	public Boolean isExisted(String customData, String parser) {
 		if (customData == null) {
 			return false;
 		}
@@ -62,6 +62,7 @@ public class ActivityRepositoryImpl implements ActivityRepositoryCustom {
 		
 		criterias.add(new Criteria().where("isDeletedRecord").is(false));
 		criterias.add(new Criteria().where("customData").is(customData));
+		criterias.add(new Criteria().where("parser").is(parser));
 		
 		Criteria c = new Criteria().andOperator(criterias.toArray(new Criteria[criterias.size()]));
 		
@@ -115,7 +116,7 @@ public class ActivityRepositoryImpl implements ActivityRepositoryCustom {
 	                stream.close();
 	                
 	                // update imageURL and save to DB
-	                newActivity.setImageUrl(rootPath+properties.getProperty("path")+newActivity.getId()+type);
+	                newActivity.setImageUrl(properties.getProperty("path") + newActivity.getId() + type);
 	                mongoTemplate.save(newActivity, "Activity");
 	            } catch (Exception e) {
 	            	e.printStackTrace();
