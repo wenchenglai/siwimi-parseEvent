@@ -18,7 +18,7 @@ import com.siwimi.webparsers.domain.Activity.LifeStage;
 import com.siwimi.webparsers.repository.ActivityRepository;
 import com.siwimi.webparsers.repository.LocationRepository;
 
-public class Parse_BN2107 implements Parser {
+public class Parse_BN implements Parser {
 	
 	@Override
 	public List<Activity> getEvents(String eventsSourceUrl, String parser, LocationRepository locationRep, ActivityRepository activityRep) {
@@ -28,7 +28,12 @@ public class Parse_BN2107 implements Parser {
 		// Since a book store has the same address, so I created global variables here to store address data.
 		List<Activity> eventsOutput = new ArrayList<Activity>();
 		String defaultZipCode = "48104";
-		String defaultAddress = "3235 Washtenaw Ave";
+		String defaultAddress = "3235 Washtenaw Ave"; 
+		if (parser.contains("2648")) {
+			defaultZipCode = "48168";
+			defaultAddress = "17111 Haggerty Rd";
+		}
+			
 		String defaultEventHostUrl = "http://stores.barnesandnoble.com";
 		String defaultEventImgUrl = "http://simg1.imagesbn.com/presources/storelocator/images/events/LrgIcon/SpecialEvents.png";
 		
