@@ -61,7 +61,6 @@ public class Activity {
 	private String url;
 	private String imageData;
 	private String imageUrl;
-	
 	private Category type;
 	private int like = 0;
 	private int viewCount = 0;
@@ -70,6 +69,7 @@ public class Activity {
 	private int toAge;
 	private float price;	
 	private Date createdDate;
+	
 	// 0: good data, 1: missing fromDate, 2: missing fromTime, 4: missing title, 8: missing description
 	// 16: missing base64Image
 	private int errorCode;
