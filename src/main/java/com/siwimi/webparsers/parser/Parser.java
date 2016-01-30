@@ -189,6 +189,30 @@ public interface Parser {
 	}
 
     /**
+     *
+     * @param pattern rule of regular expression
+     * @param filter needed to be filtered from result
+     * @param text source text
+     * @param isCaseSensitive
+     * @return
+     */
+	default String getRegexString(String pattern,String filter ,String text, boolean isCaseSensitive){
+		String result = "";
+		Pattern rulePatten = null;
+		if(isCaseSensitive){
+			rulePatten = Pattern.compile(pattern);
+		} else {
+			rulePatten = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+		}
+		Matcher patternMatcher = rulePatten.matcher(text);
+		if (patternMatcher.find()) {
+			result = patternMatcher.group(0).replace(filter,"").trim();
+		}
+
+		return result;
+	}
+
+    /**
      * set event image and image data
      *
      * @param event
