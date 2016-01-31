@@ -27,6 +27,7 @@ targetCompatibility = 1.8
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-data-mongodb")
     compile('com.google.guava:guava:18.0')
+    compile('org.json:json:20151123')
     compile("javax.mail:mail:1.4.7")
     compile('org.jsoup:jsoup:1.8.3')
     testCompile("com.jayway.jsonpath:json-path:2.0.0")
